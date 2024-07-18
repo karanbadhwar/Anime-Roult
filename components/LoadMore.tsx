@@ -1,10 +1,40 @@
+"use client";
+
+import { fetchAnime } from "@/utils/actions";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { useInView } from "react-intersection-observer";
+import AnimeCard, { AnimeProp } from "@/components/AnimeCard";
+
+let page = 2;
+
+export type AnimeCard = JSX.Element;
 
 function LoadMore() {
+  const [ref, inView] = useInView();
+  const [data, setData] = useState<AnimeCard[]>([]);
+
+  useEffect(() => {
+    // console.log("useEffect Re-redner because of Data changes");
+
+    if (inView) {
+      // console.log("useEffect Re-redner because of InView changes");
+
+      fetchAnime(page).then((res) => {
+        setData([...data, ...res]);
+        page++;
+      });
+    }
+  }, [data, inView]);
+
   return (
     <>
+      <section className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-10">
+        {data}
+      </section>
+
       <section className="flex justify-center items-center w-full">
-        <div>
+        <div ref={ref}>
           <Image
             src="./spinner.svg"
             alt="spinner"
